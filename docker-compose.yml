@@ -1,0 +1,53 @@
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gravity_test
+      POSTGRES_USER: gravity
+      POSTGRES_PASSWORD: gravity_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - gravity_test_data:/var/lib/postgresql/data
+    profiles:
+      - test
+
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DB_URL: ${DB_URL:-jdbc:postgresql://postgres-test:5432/gravity_test}
+        DB_USERNAME: ${DB_USERNAME:-gravity}
+        DB_PASSWORD: ${DB_PASSWORD:-gravity_test}
+        CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}
+    env_file:
+      - .test.env
+    depends_on:
+      - postgres-test
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    profiles:
+      - test
+
+  app-production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DB_URL: ${DB_URL:-jdbc:postgresql://dpg-dalm2k142hec73cuur7g-a.singapore-postgres.render.com/gravity_7ztg}
+        DB_USERNAME: ${DB_USERNAME:-root}
+        DB_PASSWORD: ${DB_PASSWORD:-b7y6RJzWdKSRCMe54C9vmaX0tpr1iJTy}
+        CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://your-frontend-domain.com}
+    env_file:
+      - .production.env
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    profiles:
+      - production
+
+volumes:
+  gravity_test_data:

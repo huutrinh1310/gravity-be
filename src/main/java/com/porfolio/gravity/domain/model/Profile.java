@@ -1,0 +1,127 @@
+package com.porfolio.gravity.domain.model;
+
+import com.porfolio.gravity.domain.exception.DomainValidationException;
+import com.porfolio.gravity.domain.exception.ProfileResourceNotFoundException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
+
+/**
+ * The aggregate root for everything shown on a portfolio profile.
+ */
+public final class Profile {
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+    private Integer id;
+    private String name;
+    private String email;
+    private String address;
+    private String phone;
+    private final List<Skill> skills;
+    private final List<Project> projects;
+
+    public Profile(Integer id, String name, String email, String address, String phone,
+                   List<Skill> skills, List<Project> projects) {
+        this.id = id;
+        this.skills = new ArrayList<>(skills == null ? List.of() : skills);
+        this.projects = new ArrayList<>(projects == null ? List.of() : projects);
+        changeDetails(name, email, address, phone);
+    }
+
+    public static Profile create(String name, String email, String address, String phone) {
+        return new Profile(null, name, email, address, phone, List.of(), List.of());
+    }
+
+    public void changeDetails(String name, String email, String address, String phone) {
+        this.name = required(name, "Profile name");
+        this.email = validEmail(email);
+        this.address = required(address, "Profile address");
+        this.phone = blankToNull(phone);
+    }
+
+    public Skill addSkill(String name) {
+        Skill skill = Skill.create(name);
+        skills.add(skill);
+        return skill;
+    }
+
+    public void changeSkill(Integer skillId, String name) {
+        findSkill(skillId).rename(name);
+    }
+
+    public void removeSkill(Integer skillId) {
+        skills.remove(findSkill(skillId));
+    }
+
+    public Project addProject(String name, String description, List<Skill> skills) {
+        Project project = Project.create(name, description, skills, null, null);
+        projects.add(project);
+        return project;
+    }
+
+    public void changeProject(Integer projectId, String name, String description, List<Skill> skills) {
+        findProject(projectId).changeDetails(name, description, skills);
+    }
+
+    public void removeProject(Integer projectId) {
+        projects.remove(findProject(projectId));
+    }
+
+    public Skill findSkill(Integer skillId) {
+        return skills.stream().filter(skill -> Objects.equals(skill.id(), skillId)).findFirst()
+                .orElseThrow(() -> new ProfileResourceNotFoundException("Skill with ID " + skillId + " not found"));
+    }
+
+    public Project findProject(Integer projectId) {
+        return projects.stream().filter(project -> Objects.equals(project.id(), projectId)).findFirst()
+                .orElseThrow(() -> new ProfileResourceNotFoundException("Project with ID " + projectId + " not found"));
+    }
+
+    public Integer id() {
+        return id;
+    }
+
+    public void assignId(Integer id) {
+        this.id = id;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public String email() {
+        return email;
+    }
+
+    public String address() {
+        return address;
+    }
+
+    public String phone() {
+        return phone;
+    }
+
+    public List<Skill> skills() {
+        return List.copyOf(skills);
+    }
+
+    public List<Project> projects() {
+        return List.copyOf(projects);
+    }
+
+    private static String required(String value, String field) {
+        if (value == null || value.isBlank()) throw new DomainValidationException(field + " is required");
+        return value.trim();
+    }
+
+    private static String validEmail(String value) {
+        String email = required(value, "Profile email");
+        if (!EMAIL_PATTERN.matcher(email).matches()) throw new DomainValidationException("Profile email must be valid");
+        return email;
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
+    }
+}

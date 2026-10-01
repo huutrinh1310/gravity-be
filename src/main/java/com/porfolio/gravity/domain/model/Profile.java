@@ -20,12 +20,19 @@ public final class Profile {
     private String phone;
     private final List<Skill> skills;
     private final List<Project> projects;
+    private final List<Portfolio> portfolios;
 
     public Profile(Integer id, String name, String email, String address, String phone,
                    List<Skill> skills, List<Project> projects) {
+        this(id, name, email, address, phone, skills, projects, List.of());
+    }
+
+    public Profile(Integer id, String name, String email, String address, String phone,
+                   List<Skill> skills, List<Project> projects, List<Portfolio> portfolios) {
         this.id = id;
         this.skills = new ArrayList<>(skills == null ? List.of() : skills);
         this.projects = new ArrayList<>(projects == null ? List.of() : projects);
+        this.portfolios = new ArrayList<>(portfolios == null ? List.of() : portfolios);
         changeDetails(name, email, address, phone);
     }
 
@@ -68,6 +75,22 @@ public final class Profile {
         projects.remove(findProject(projectId));
     }
 
+    public Portfolio addPortfolio(String name, String domainUrl, PortfolioTemplate template, String description,
+                                  String imageUrl, Boolean isPublic, Boolean isIntegrateAnalytics) {
+        Portfolio portfolio = Portfolio.create(name, domainUrl, template, description, imageUrl, isPublic, isIntegrateAnalytics);
+        portfolios.add(portfolio);
+        return portfolio;
+    }
+
+    public void changePortfolio(Integer portfolioId, String name, String domainUrl, PortfolioTemplate template,
+                                String description, String imageUrl, Boolean isPublic, Boolean isIntegrateAnalytics) {
+        findPortfolio(portfolioId).changeDetails(name, domainUrl, template, description, imageUrl, isPublic, isIntegrateAnalytics);
+    }
+
+    public void removePortfolio(Integer portfolioId) {
+        portfolios.remove(findPortfolio(portfolioId));
+    }
+
     public Skill findSkill(Integer skillId) {
         return skills.stream().filter(skill -> Objects.equals(skill.id(), skillId)).findFirst()
                 .orElseThrow(() -> new ProfileResourceNotFoundException("Skill with ID " + skillId + " not found"));
@@ -76,6 +99,11 @@ public final class Profile {
     public Project findProject(Integer projectId) {
         return projects.stream().filter(project -> Objects.equals(project.id(), projectId)).findFirst()
                 .orElseThrow(() -> new ProfileResourceNotFoundException("Project with ID " + projectId + " not found"));
+    }
+
+    public Portfolio findPortfolio(Integer portfolioId) {
+        return portfolios.stream().filter(portfolio -> Objects.equals(portfolio.id(), portfolioId)).findFirst()
+                .orElseThrow(() -> new ProfileResourceNotFoundException("Portfolio with ID " + portfolioId + " not found"));
     }
 
     public Integer id() {
@@ -108,6 +136,10 @@ public final class Profile {
 
     public List<Project> projects() {
         return List.copyOf(projects);
+    }
+
+    public List<Portfolio> portfolios() {
+        return List.copyOf(portfolios);
     }
 
     private static String required(String value, String field) {

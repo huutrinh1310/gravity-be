@@ -2,6 +2,7 @@ package com.porfolio.gravity.application.service;
 
 import com.porfolio.gravity.application.port.out.profile.ProfileRepository;
 import com.porfolio.gravity.application.port.in.profile.*;
+import com.porfolio.gravity.domain.model.Portfolio;
 import com.porfolio.gravity.domain.model.Profile;
 import com.porfolio.gravity.domain.exception.ProfileResourceNotFoundException;
 import com.porfolio.gravity.domain.model.Project;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
-public class ProfileApplicationService implements ProfileUseCase, SkillUseCase, ProjectUseCase {
+public class ProfileApplicationService implements ProfileUseCase, SkillUseCase, ProjectUseCase, PortfolioUseCase {
     private final ProfileRepository profiles;
 
     public ProfileApplicationService(ProfileRepository profiles) {
@@ -114,6 +115,48 @@ public class ProfileApplicationService implements ProfileUseCase, SkillUseCase, 
         profiles.save(profile);
     }
 
+    @Override
+    public List<Portfolio> listPortfolios() {
+        return profiles.findAll().stream().flatMap(profile -> profile.portfolios().stream()).toList();
+    }
+
+    @Override
+    public Portfolio getPortfolio(Integer id) {
+        return profileContainingPortfolio(id).findPortfolio(id);
+    }
+
+    @Transactional
+    @Override
+    public Portfolio createPortfolio(CreatePortfolioCommand command) {
+        Profile profile = load(command.profileId());
+        Set<Integer> existingIds = profile.portfolios().stream()
+                .map(Portfolio::id).filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toSet());
+        profile.addPortfolio(command.name(), command.domainUrl(), command.template(), command.description(),
+                command.imageUrl(), command.isPublic(), command.isIntegrateAnalytics());
+        return profiles.save(profile).portfolios().stream()
+                .filter(portfolio -> portfolio.id() != null && !existingIds.contains(portfolio.id()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Saved portfolio was not assigned an ID"));
+    }
+
+    @Transactional
+    @Override
+    public Portfolio updatePortfolio(Integer id, UpdatePortfolioCommand command) {
+        Profile profile = profileContainingPortfolio(id);
+        profile.changePortfolio(id, command.name(), command.domainUrl(), command.template(), command.description(),
+                command.imageUrl(), command.isPublic(), command.isIntegrateAnalytics());
+        profiles.save(profile);
+        return profile.findPortfolio(id);
+    }
+
+    @Transactional
+    @Override
+    public void deletePortfolio(Integer id) {
+        Profile profile = profileContainingPortfolio(id);
+        profile.removePortfolio(id);
+        profiles.save(profile);
+    }
+
     private Profile load(Integer id) {
         return profiles.findById(id).orElseThrow(() -> notFound("Profile", id));
     }
@@ -124,6 +167,10 @@ public class ProfileApplicationService implements ProfileUseCase, SkillUseCase, 
 
     private Profile profileContainingProject(Integer id) {
         return profiles.findByProjectId(id).orElseThrow(() -> notFound("Project", id));
+    }
+
+    private Profile profileContainingPortfolio(Integer id) {
+        return profiles.findByPortfolioId(id).orElseThrow(() -> notFound("Portfolio", id));
     }
 
     private ProfileResourceNotFoundException notFound(String type, Integer id) {

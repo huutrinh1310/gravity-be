@@ -17,6 +17,8 @@ public interface ProfileRepository {
 
     Optional<Profile> findByProjectId(Integer projectId);
 
+    Optional<Profile> findByPortfolioId(Integer portfolioId);
+
     Profile save(Profile profile);
 
     void delete(Profile profile);

@@ -25,4 +25,6 @@ public class ProfileJpaEntity {
     Set<SkillJpaEntity> skills = new LinkedHashSet<>();
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<ProjectJpaEntity> projects = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<PortfolioJpaEntity> portfolios = new LinkedHashSet<>();
 }

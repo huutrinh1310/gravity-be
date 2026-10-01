@@ -1,10 +1,11 @@
 package com.porfolio.gravity.adapter.out.persistence.profile;
 
 import jakarta.persistence.*;
+import com.porfolio.gravity.adapter.out.persistence.common.BaseEntity;
 
 @Entity
 @Table(name = "skills")
-public class SkillJpaEntity {
+public class SkillJpaEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "skill_id")

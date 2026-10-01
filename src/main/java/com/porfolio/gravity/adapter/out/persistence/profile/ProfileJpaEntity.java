@@ -1,6 +1,7 @@
 package com.porfolio.gravity.adapter.out.persistence.profile;
 
 import jakarta.persistence.*;
+import com.porfolio.gravity.adapter.out.persistence.common.BaseEntity;
 import lombok.ToString;
 
 import java.util.LinkedHashSet;
@@ -9,7 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name = "profiles")
 @ToString
-public class ProfileJpaEntity {
+public class ProfileJpaEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profile_id")

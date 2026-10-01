@@ -1,10 +1,11 @@
 package com.porfolio.gravity.adapter.out.persistence.banner;
 
+import com.porfolio.gravity.adapter.out.persistence.common.BaseEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "banners")
-public class BannerJpaEntity {
+public class BannerJpaEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "banner_id")

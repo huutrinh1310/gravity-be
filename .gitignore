@@ -40,3 +40,4 @@ out/
 # Local runtime credentials
 .env
 .env.*
+*.env

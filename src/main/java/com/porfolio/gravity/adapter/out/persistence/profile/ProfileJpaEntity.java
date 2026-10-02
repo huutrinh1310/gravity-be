@@ -22,6 +22,14 @@ public class ProfileJpaEntity extends BaseEntity {
     @Column(nullable = false)
     String address;
     String phone;
+    @Column(name = "password_hash")
+    String passwordHash;
+    @Column(name = "auth_provider", length = 20)
+    String authProvider;
+    @Column(name = "provider_id", length = 255)
+    String providerId;
+    @Column(length = 30)
+    String role;
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<SkillJpaEntity> skills = new LinkedHashSet<>();
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)

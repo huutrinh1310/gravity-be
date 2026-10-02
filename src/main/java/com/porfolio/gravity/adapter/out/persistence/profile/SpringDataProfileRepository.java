@@ -18,6 +18,12 @@ interface SpringDataProfileRepository extends JpaRepository<ProfileJpaEntity, In
     Optional<ProfileJpaEntity> findById(Integer id);
 
     @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
+    Optional<ProfileJpaEntity> findByEmail(String email);
+
+    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
+    Optional<ProfileJpaEntity> findByAuthProviderAndProviderId(String authProvider, String providerId);
+
+    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
     @Query("select distinct profile from ProfileJpaEntity profile join profile.skills skill where skill.id = :skillId")
     Optional<ProfileJpaEntity> findBySkillId(@Param("skillId") Integer skillId);
 

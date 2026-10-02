@@ -31,6 +31,16 @@ public class ProfilePersistenceAdapter implements ProfileRepository {
     }
 
     @Override
+    public Optional<Profile> findByEmail(String email) {
+        return repository.findByEmail(email).map(this::toDomain);
+    }
+
+    @Override
+    public Optional<Profile> findByAuthProviderAndProviderId(String authProvider, String providerId) {
+        return repository.findByAuthProviderAndProviderId(authProvider, providerId).map(this::toDomain);
+    }
+
+    @Override
     public Optional<Profile> findBySkillId(Integer skillId) {
         return repository.findBySkillId(skillId).map(this::toDomain);
     }
@@ -62,7 +72,8 @@ public class ProfilePersistenceAdapter implements ProfileRepository {
                         project.skills.stream().map(skill -> new Skill(skill.id, skill.name)).toList(), null, null)).toList(),
                 source.portfolios.stream().map(portfolio -> new Portfolio(portfolio.id, portfolio.name, portfolio.domainUrl,
                         templateFrom(portfolio), portfolio.description, portfolio.imageUrl, portfolio.isPublic,
-                        portfolio.isIntegrateAnalytics)).toList());
+                    portfolio.isIntegrateAnalytics)).toList(),
+                source.passwordHash, source.authProvider, source.providerId, source.role);
     }
 
     private ProfileJpaEntity toEntity(Profile source) {
@@ -72,6 +83,10 @@ public class ProfilePersistenceAdapter implements ProfileRepository {
         target.email = source.email();
         target.address = source.address();
         target.phone = source.phone();
+        target.passwordHash = source.passwordHash();
+        target.authProvider = source.authProvider();
+        target.providerId = source.providerId();
+        target.role = source.role();
         for (Skill skill : source.skills()) {
             SkillJpaEntity child = new SkillJpaEntity();
             child.id = skill.id();

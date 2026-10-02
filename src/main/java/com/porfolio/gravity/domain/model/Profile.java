@@ -18,6 +18,10 @@ public final class Profile {
     private String email;
     private String address;
     private String phone;
+    private String passwordHash;
+    private String authProvider;
+    private String providerId;
+    private String role;
     private final List<Skill> skills;
     private final List<Project> projects;
     private final List<Portfolio> portfolios;
@@ -29,10 +33,20 @@ public final class Profile {
 
     public Profile(Integer id, String name, String email, String address, String phone,
                    List<Skill> skills, List<Project> projects, List<Portfolio> portfolios) {
+        this(id, name, email, address, phone, skills, projects, portfolios, null, null, null, null);
+    }
+
+    public Profile(Integer id, String name, String email, String address, String phone,
+                   List<Skill> skills, List<Project> projects, List<Portfolio> portfolios,
+                   String passwordHash, String authProvider, String providerId, String role) {
         this.id = id;
         this.skills = new ArrayList<>(skills == null ? List.of() : skills);
         this.projects = new ArrayList<>(projects == null ? List.of() : projects);
         this.portfolios = new ArrayList<>(portfolios == null ? List.of() : portfolios);
+        this.passwordHash = passwordHash;
+        this.authProvider = authProvider;
+        this.providerId = providerId;
+        this.role = role;
         changeDetails(name, email, address, phone);
     }
 
@@ -40,11 +54,25 @@ public final class Profile {
         return new Profile(null, name, email, address, phone, List.of(), List.of());
     }
 
+    public static Profile createAuthenticated(String name, String email, String address, String phone,
+                                              String passwordHash, String authProvider, String providerId, String role) {
+        return new Profile(null, name, email, address, phone, List.of(), List.of(), List.of(),
+                passwordHash, authProvider, providerId, role);
+    }
+
     public void changeDetails(String name, String email, String address, String phone) {
         this.name = required(name, "Profile name");
         this.email = validEmail(email);
-        this.address = required(address, "Profile address");
+        this.address = allowsMissingAddress() ? blankToNull(address) : required(address, "Profile address");
         this.phone = blankToNull(phone);
+    }
+
+    public void linkOAuthProvider(String provider, String providerId) {
+        if (this.providerId != null && (!provider.equals(authProvider) || !providerId.equals(this.providerId))) {
+            throw new DomainValidationException("Profile is already linked to another OAuth identity");
+        }
+        this.authProvider = required(provider, "Authentication provider");
+        this.providerId = required(providerId, "Provider ID");
     }
 
     public Skill addSkill(String name) {
@@ -130,6 +158,22 @@ public final class Profile {
         return phone;
     }
 
+    public String passwordHash() {
+        return passwordHash;
+    }
+
+    public String authProvider() {
+        return authProvider;
+    }
+
+    public String providerId() {
+        return providerId;
+    }
+
+    public String role() {
+        return role;
+    }
+
     public List<Skill> skills() {
         return List.copyOf(skills);
     }
@@ -155,5 +199,9 @@ public final class Profile {
 
     private static String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private boolean allowsMissingAddress() {
+        return "google".equals(authProvider) || "github".equals(authProvider);
     }
 }

@@ -5,6 +5,19 @@ spring:
   application:
     name: gravity
 
+  security:
+    oauth2:
+      client:
+        registration:
+#          google:
+#            client-id: ${GOOGLE_CLIENT_ID:change-me}
+#            client-secret: ${GOOGLE_CLIENT_SECRET:change-me}
+#            scope: openid, email, profile
+          github:
+            client-id: ${GITHUB_CLIENT_ID:Ov23liXc9qCPRlZSMYLC}
+            client-secret: ${GITHUB_CLIENT_SECRET:db2affae8ccb7fbee29277f68bd15fb4b4767f28}
+            scope: user:email, read:user
+
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/gravity}
     username: ${DB_USERNAME:postgres}
@@ -19,8 +32,16 @@ spring:
         format_sql: true
 
 app:
+  auth:
+    cookie-secure: ${COOKIE_SECURE:false}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:4173}
+  jwt:
+    secret: ${JWT_SECRET:change-me-to-a-256-bit-secret-in-production}
+    access-token-expiration-ms: 900000       # 15 minutes
+    refresh-token-expiration-ms: 604800000   # 7 days
+  oauth2:
+    frontend-redirect-uri: ${OAUTH2_FRONTEND_REDIRECT:http://localhost:3000/oauth/callback}
 
 springdoc:
   api-docs:

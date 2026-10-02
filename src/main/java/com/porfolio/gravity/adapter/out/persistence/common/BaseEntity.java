@@ -9,20 +9,20 @@ import java.time.Instant;
 
 @MappedSuperclass
 public abstract class BaseEntity {
-    @Column(name = "created_by", length = 100)
+    @Column(name = "created_by", length = 100, nullable = true)
     private String createdBy;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = true, updatable = false)
     private Instant createdAt;
 
     @Column(name = "last_modified_by", length = 100)
     private String lastModifiedBy;
 
-    @Column(name = "last_modified_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = true)
     private Instant lastModifiedAt;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "is_deleted", nullable = true)
+    private boolean isDeleted = true;
 
     @PrePersist
     protected void onCreate() {

@@ -3,8 +3,10 @@ package com.porfolio.gravity.shared.web;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import com.porfolio.gravity.domain.exception.BannerResourceNotFoundException;
+import com.porfolio.gravity.domain.exception.AuthenticationException;
 import com.porfolio.gravity.domain.exception.DomainValidationException;
 import com.porfolio.gravity.domain.exception.ProfileResourceNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +22,18 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
+        log.debug("Authentication failed for request path {}", request.getRequestURI());
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Authentication failed", request.getRequestURI());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        log.debug("Access denied for request path {}", request.getRequestURI());
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
+    }
 
     @ExceptionHandler(ProfileResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleProfileResourceNotFound(ProfileResourceNotFoundException ex, HttpServletRequest request) {

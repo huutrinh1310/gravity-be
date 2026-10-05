@@ -33,11 +33,18 @@ public class BannerController {
         return BannerResponse.from(useCase.getBanner(id));
     }
 
+    @Operation(summary = "Get banner by profile ID")
+    @GetMapping("/profile/{id}")
+    public BannerResponse getByProfile(@PathVariable Integer id) {
+        return BannerResponse.from(useCase.getBannerByProfile(id));
+    }
+
     @Operation(summary = "Create a banner")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BannerResponse create(@Valid @RequestBody BannerRequest request) {
         return BannerResponse.from(useCase.createBanner(new CreateBannerCommand(
+                request.profileId(),
                 request.title(),
                 request.subtitle(),
                 request.imageUrl(),
@@ -51,6 +58,7 @@ public class BannerController {
     @PutMapping("/{id}")
     public BannerResponse update(@PathVariable Integer id, @Valid @RequestBody BannerRequest request) {
         return BannerResponse.from(useCase.updateBanner(id, new UpdateBannerCommand(
+                request.profileId(),
                 request.title(),
                 request.subtitle(),
                 request.imageUrl(),

@@ -4,6 +4,7 @@ import com.porfolio.gravity.domain.model.Banner;
 
 public record BannerResponse(
         Integer id,
+        Integer profileId,
         String title,
         String subtitle,
         String imageUrl,
@@ -14,6 +15,7 @@ public record BannerResponse(
     public static BannerResponse from(Banner banner) {
         return new BannerResponse(
                 banner.id(),
+                banner.profileId(),
                 banner.title(),
                 banner.subtitle(),
                 banner.imageUrl(),

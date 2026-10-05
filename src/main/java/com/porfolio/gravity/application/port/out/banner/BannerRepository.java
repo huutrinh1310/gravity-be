@@ -10,6 +10,8 @@ public interface BannerRepository {
 
     Optional<Banner> findById(Integer id);
 
+    Optional<Banner> findByProfileId(Integer profileId);
+
     Banner save(Banner banner);
 
     void delete(Banner banner);

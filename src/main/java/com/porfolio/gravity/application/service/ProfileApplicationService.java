@@ -2,6 +2,7 @@ package com.porfolio.gravity.application.service;
 
 import com.porfolio.gravity.application.port.out.profile.ProfileRepository;
 import com.porfolio.gravity.application.port.in.profile.*;
+import com.porfolio.gravity.domain.exception.DomainValidationException;
 import com.porfolio.gravity.domain.model.Portfolio;
 import com.porfolio.gravity.domain.model.Profile;
 import com.porfolio.gravity.domain.exception.ProfileResourceNotFoundException;
@@ -125,6 +126,14 @@ public class ProfileApplicationService implements ProfileUseCase, SkillUseCase, 
         return profileContainingPortfolio(id).findPortfolio(id);
     }
 
+    @Override
+    public List<Portfolio> getPortfolioByProfile(Integer id) {
+        requireProfile(id);
+
+        return profiles.findById(id).map(Profile::portfolios)
+                .orElseThrow(() -> new ProfileResourceNotFoundException("Profile with ID " + id + " not found"));
+    }
+
     @Transactional
     @Override
     public Portfolio createPortfolio(CreatePortfolioCommand command) {
@@ -175,5 +184,14 @@ public class ProfileApplicationService implements ProfileUseCase, SkillUseCase, 
 
     private ProfileResourceNotFoundException notFound(String type, Integer id) {
         return new ProfileResourceNotFoundException(type + " with ID " + id + " not found");
+    }
+
+    private void requireProfile(Integer profileId) {
+        if (profileId == null) {
+            throw new DomainValidationException("Banner profile ID is required");
+        }
+        if (!profiles.existsById(profileId)) {
+            throw new ProfileResourceNotFoundException("Profile with ID " + profileId + " not found");
+        }
     }
 }

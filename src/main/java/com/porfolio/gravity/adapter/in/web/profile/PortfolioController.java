@@ -34,6 +34,12 @@ public class PortfolioController {
         return PortfolioResponse.from(useCase.getPortfolio(id));
     }
 
+    @Operation(summary = "Get portfolio by profile ID")
+    @GetMapping("/profile/{id}")
+    public List<PortfolioResponse> getByProfileId(@PathVariable Integer id) {
+        return useCase.getPortfolioByProfile(id).stream().map(PortfolioResponse::from).toList();
+    }
+
     @Operation(summary = "Create a portfolio")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

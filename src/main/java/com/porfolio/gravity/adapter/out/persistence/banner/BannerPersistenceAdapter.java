@@ -2,6 +2,8 @@ package com.porfolio.gravity.adapter.out.persistence.banner;
 
 import com.porfolio.gravity.application.port.out.banner.BannerRepository;
 import com.porfolio.gravity.domain.model.Banner;
+import com.porfolio.gravity.adapter.out.persistence.profile.ProfileJpaEntity;
+import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,9 +12,11 @@ import java.util.Optional;
 @Repository
 public class BannerPersistenceAdapter implements BannerRepository {
     private final SpringDataBannerRepository repository;
+    private final EntityManager entityManager;
 
-    public BannerPersistenceAdapter(SpringDataBannerRepository repository) {
+    public BannerPersistenceAdapter(SpringDataBannerRepository repository, EntityManager entityManager) {
         this.repository = repository;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -26,6 +30,11 @@ public class BannerPersistenceAdapter implements BannerRepository {
     }
 
     @Override
+    public Optional<Banner> findByProfileId(Integer profileId) {
+        return repository.findByProfile_Id(profileId).map(this::toDomain);
+    }
+
+    @Override
     public Banner save(Banner banner) {
         return toDomain(repository.save(toEntity(banner)));
     }
@@ -36,12 +45,13 @@ public class BannerPersistenceAdapter implements BannerRepository {
     }
 
     private Banner toDomain(BannerJpaEntity source) {
-        return new Banner(source.id, source.title, source.subtitle, source.imageUrl, source.linkUrl, source.active, source.sortOrder);
+        return source.toDomain();
     }
 
     private BannerJpaEntity toEntity(Banner source) {
         BannerJpaEntity target = new BannerJpaEntity();
         target.id = source.id();
+        target.profile = entityManager.getReference(ProfileJpaEntity.class, source.profileId());
         target.title = source.title();
         target.subtitle = source.subtitle();
         target.imageUrl = source.imageUrl();

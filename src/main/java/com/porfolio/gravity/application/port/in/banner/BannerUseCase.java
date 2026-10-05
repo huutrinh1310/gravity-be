@@ -14,4 +14,6 @@ public interface BannerUseCase {
     Banner updateBanner(Integer id, UpdateBannerCommand command);
 
     void deleteBanner(Integer id);
+
+    Banner getBannerByProfile(Integer profileId);
 }

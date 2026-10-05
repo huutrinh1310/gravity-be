@@ -10,28 +10,28 @@ import java.util.Optional;
 
 interface SpringDataProfileRepository extends JpaRepository<ProfileJpaEntity, Integer> {
     @Override
-    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
+    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios", "banner"})
     List<ProfileJpaEntity> findAll();
 
     @Override
-    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
+    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios", "banner"})
     Optional<ProfileJpaEntity> findById(Integer id);
 
-    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
+    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios", "banner"})
     Optional<ProfileJpaEntity> findByEmail(String email);
 
-    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
+    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios", "banner"})
     Optional<ProfileJpaEntity> findByAuthProviderAndProviderId(String authProvider, String providerId);
 
-    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
+    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios", "banner"})
     @Query("select distinct profile from ProfileJpaEntity profile join profile.skills skill where skill.id = :skillId")
     Optional<ProfileJpaEntity> findBySkillId(@Param("skillId") Integer skillId);
 
-    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
+    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios", "banner"})
     @Query("select distinct profile from ProfileJpaEntity profile join profile.projects project where project.id = :projectId")
     Optional<ProfileJpaEntity> findByProjectId(@Param("projectId") Integer projectId);
 
-    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios"})
+    @EntityGraph(attributePaths = {"skills", "projects", "projects.skills", "portfolios", "banner"})
     @Query("select distinct profile from ProfileJpaEntity profile join profile.portfolios portfolio where portfolio.id = :portfolioId")
     Optional<ProfileJpaEntity> findByPortfolioId(@Param("portfolioId") Integer portfolioId);
 }

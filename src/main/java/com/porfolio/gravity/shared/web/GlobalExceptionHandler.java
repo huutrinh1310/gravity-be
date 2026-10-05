@@ -3,6 +3,7 @@ package com.porfolio.gravity.shared.web;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import com.porfolio.gravity.domain.exception.BannerResourceNotFoundException;
+import com.porfolio.gravity.domain.exception.BannerAlreadyExistsException;
 import com.porfolio.gravity.domain.exception.AuthenticationException;
 import com.porfolio.gravity.domain.exception.DomainValidationException;
 import com.porfolio.gravity.domain.exception.ProfileResourceNotFoundException;
@@ -43,6 +44,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BannerResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleBannerResourceNotFound(BannerResourceNotFoundException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(BannerAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse> handleBannerAlreadyExists(BannerAlreadyExistsException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(DomainValidationException.class)

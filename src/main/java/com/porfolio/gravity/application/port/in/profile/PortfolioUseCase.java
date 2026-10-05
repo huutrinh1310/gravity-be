@@ -9,6 +9,8 @@ public interface PortfolioUseCase {
 
     Portfolio getPortfolio(Integer id);
 
+    List<Portfolio> getPortfolioByProfile(Integer id);
+
     Portfolio createPortfolio(CreatePortfolioCommand command);
 
     Portfolio updatePortfolio(Integer id, UpdatePortfolioCommand command);

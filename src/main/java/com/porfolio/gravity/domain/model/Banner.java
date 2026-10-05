@@ -4,6 +4,7 @@ import com.porfolio.gravity.domain.exception.DomainValidationException;
 
 public final class Banner {
     private Integer id;
+    private Integer profileId;
     private String title;
     private String subtitle;
     private String imageUrl;
@@ -11,13 +12,17 @@ public final class Banner {
     private boolean active;
     private Integer sortOrder;
 
-    public Banner(Integer id, String title, String subtitle, String imageUrl, String linkUrl, Boolean active, Integer sortOrder) {
+    public Banner(Integer id, Integer profileId, String title, String subtitle, String imageUrl, String linkUrl, Boolean active, Integer sortOrder) {
         this.id = id;
+        if (profileId == null) {
+            throw new DomainValidationException("Banner profile ID is required");
+        }
+        this.profileId = profileId;
         changeDetails(title, subtitle, imageUrl, linkUrl, active, sortOrder);
     }
 
-    public static Banner create(String title, String subtitle, String imageUrl, String linkUrl, Boolean active, Integer sortOrder) {
-        return new Banner(null, title, subtitle, imageUrl, linkUrl, active, sortOrder);
+    public static Banner create(Integer profileId, String title, String subtitle, String imageUrl, String linkUrl, Boolean active, Integer sortOrder) {
+        return new Banner(null, profileId, title, subtitle, imageUrl, linkUrl, active, sortOrder);
     }
 
     public void changeDetails(String title, String subtitle, String imageUrl, String linkUrl, Boolean active, Integer sortOrder) {
@@ -33,8 +38,19 @@ public final class Banner {
         }
     }
 
+    public void changeProfile(Integer profileId) {
+        if (profileId == null) {
+            throw new DomainValidationException("Banner profile ID is required");
+        }
+        this.profileId = profileId;
+    }
+
     public Integer id() {
         return id;
+    }
+
+    public Integer profileId() {
+        return profileId;
     }
 
     public void assignId(Integer id) {

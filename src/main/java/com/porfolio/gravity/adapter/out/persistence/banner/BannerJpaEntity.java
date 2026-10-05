@@ -1,6 +1,8 @@
 package com.porfolio.gravity.adapter.out.persistence.banner;
 
 import com.porfolio.gravity.adapter.out.persistence.common.BaseEntity;
+import com.porfolio.gravity.adapter.out.persistence.profile.ProfileJpaEntity;
+import com.porfolio.gravity.domain.model.Banner;
 import jakarta.persistence.*;
 
 @Entity
@@ -27,4 +29,12 @@ public class BannerJpaEntity extends BaseEntity {
 
     @Column(nullable = false)
     Integer sortOrder;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id", nullable = true, unique = true)
+    ProfileJpaEntity profile;
+
+    public Banner toDomain() {
+        return new Banner(id, profile.getId(), title, subtitle, imageUrl, linkUrl, active, sortOrder);
+    }
 }

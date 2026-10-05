@@ -22,6 +22,7 @@ public final class Profile {
     private String authProvider;
     private String providerId;
     private String role;
+    private final Banner banner;
     private final List<Skill> skills;
     private final List<Project> projects;
     private final List<Portfolio> portfolios;
@@ -39,7 +40,17 @@ public final class Profile {
     public Profile(Integer id, String name, String email, String address, String phone,
                    List<Skill> skills, List<Project> projects, List<Portfolio> portfolios,
                    String passwordHash, String authProvider, String providerId, String role) {
+        this(id, name, email, address, phone, skills, projects, portfolios, passwordHash, authProvider, providerId, role, null);
+    }
+
+    public Profile(Integer id, String name, String email, String address, String phone,
+                   List<Skill> skills, List<Project> projects, List<Portfolio> portfolios,
+                   String passwordHash, String authProvider, String providerId, String role, Banner banner) {
+        if (banner != null && (id == null || !id.equals(banner.profileId()))) {
+            throw new DomainValidationException("Banner must belong to its profile");
+        }
         this.id = id;
+        this.banner = banner;
         this.skills = new ArrayList<>(skills == null ? List.of() : skills);
         this.projects = new ArrayList<>(projects == null ? List.of() : projects);
         this.portfolios = new ArrayList<>(portfolios == null ? List.of() : portfolios);
@@ -172,6 +183,10 @@ public final class Profile {
 
     public String role() {
         return role;
+    }
+
+    public Banner banner() {
+        return banner;
     }
 
     public List<Skill> skills() {

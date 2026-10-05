@@ -1,5 +1,6 @@
 package com.porfolio.gravity.adapter.out.persistence.profile;
 
+import com.porfolio.gravity.adapter.out.persistence.banner.BannerJpaEntity;
 import com.porfolio.gravity.application.port.out.profile.ProfileRepository;
 import com.porfolio.gravity.domain.model.Profile;
 import com.porfolio.gravity.domain.model.Portfolio;
@@ -7,6 +8,7 @@ import com.porfolio.gravity.domain.model.PortfolioTemplate;
 import com.porfolio.gravity.domain.model.PortfolioType;
 import com.porfolio.gravity.domain.model.Project;
 import com.porfolio.gravity.domain.model.Skill;
+import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,9 +17,11 @@ import java.util.Optional;
 @Repository
 public class ProfilePersistenceAdapter implements ProfileRepository {
     private final SpringDataProfileRepository repository;
+    private final EntityManager entityManager;
 
-    public ProfilePersistenceAdapter(SpringDataProfileRepository repository) {
+    public ProfilePersistenceAdapter(SpringDataProfileRepository repository, EntityManager entityManager) {
         this.repository = repository;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -28,6 +32,11 @@ public class ProfilePersistenceAdapter implements ProfileRepository {
     @Override
     public Optional<Profile> findById(Integer id) {
         return repository.findById(id).map(this::toDomain);
+    }
+
+    @Override
+    public boolean existsById(Integer id) {
+        return repository.existsById(id);
     }
 
     @Override
@@ -57,7 +66,8 @@ public class ProfilePersistenceAdapter implements ProfileRepository {
 
     @Override
     public Profile save(Profile profile) {
-        return toDomain(repository.save(toEntity(profile)));
+        ProfileJpaEntity saved = repository.save(toEntity(profile));
+        return toDomain(repository.findById(saved.id).orElse(saved));
     }
 
     @Override
@@ -73,7 +83,8 @@ public class ProfilePersistenceAdapter implements ProfileRepository {
                 source.portfolios.stream().map(portfolio -> new Portfolio(portfolio.id, portfolio.name, portfolio.domainUrl,
                         templateFrom(portfolio), portfolio.description, portfolio.imageUrl, portfolio.isPublic,
                     portfolio.isIntegrateAnalytics)).toList(),
-                source.passwordHash, source.authProvider, source.providerId, source.role);
+                source.passwordHash, source.authProvider, source.providerId, source.role,
+                source.banner == null ? null : source.banner.toDomain());
     }
 
     private ProfileJpaEntity toEntity(Profile source) {
@@ -87,6 +98,9 @@ public class ProfilePersistenceAdapter implements ProfileRepository {
         target.authProvider = source.authProvider();
         target.providerId = source.providerId();
         target.role = source.role();
+        if (source.banner() != null) {
+            target.banner = entityManager.getReference(BannerJpaEntity.class, source.banner().id());
+        }
         for (Skill skill : source.skills()) {
             SkillJpaEntity child = new SkillJpaEntity();
             child.id = skill.id();

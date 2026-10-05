@@ -13,6 +13,8 @@ public interface ProfileRepository {
 
     Optional<Profile> findById(Integer id);
 
+    boolean existsById(Integer id);
+
     Optional<Profile> findByEmail(String email);
 
     Optional<Profile> findByAuthProviderAndProviderId(String authProvider, String providerId);
